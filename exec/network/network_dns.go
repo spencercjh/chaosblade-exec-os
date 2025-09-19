@@ -211,8 +211,8 @@ func (m *replaceApplier) Start(ctx context.Context, uid, domainArg, ip string) *
 	}
 
 	expHostsFile := fmt.Sprintf(backupHostsFileFormat, hosts, uid)
-	// cat /etc/hosts && cp /etc/hosts /etc/hosts.bak-$uid
-	response := m.ch.Run(ctx, "cat", fmt.Sprintf("%s && cp %s %s", hosts, hosts, expHostsFile))
+	// cat /etc/hosts
+	response := m.ch.Run(ctx, "cat", hosts)
 	if !response.Success {
 		log.Errorf(ctx, "read hosts file failed, %v, uid: %s", response.Err, uid)
 		return response
