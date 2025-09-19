@@ -244,22 +244,40 @@ func calculateFileSize(ctx context.Context, directory, size, percent, reserve st
 		if err != nil {
 			return "", err
 		}
-		usedPercentage, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(usedBytes)/float64(allBytes)), 64)
-		expectedPercentage, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(p)/100.0), 64)
-		if usedPercentage >= expectedPercentage {
-			return "", fmt.Errorf("the disk has been used %.2f, large than expected", usedPercentage)
-		}
-		remainderPercentage := expectedPercentage - usedPercentage
-		log.Debugf(ctx, "remainderPercentage: %f", remainderPercentage)
 
-		var expectSize float64
-		if remainderPercentage*float64(allBytes) > float64(availableBytes) {
-			expectSize = math.Floor(float64(availableBytes) / (1024.0 * 1024.0))
-		} else {
-			expectSize = math.Floor(remainderPercentage * float64(allBytes) / (1024.0 * 1024.0))
+		// 计算用户可访问的总空间（排除系统预留）
+		currentUsedPercent := float64(usedBytes) * 100.0 / float64(allBytes)
+		log.Debugf(ctx, "user accessible space: total=%d bytes (%.2f GB), current_used_percent=%.2f%%",
+			allBytes, float64(allBytes)/(1024*1024*1024), currentUsedPercent)
+
+		if currentUsedPercent >= float64(p) {
+			log.Warnf(ctx, "disk usage already meets or exceeds target: current=%.2f%% >= target=%d%%",
+				currentUsedPercent, p)
+			return "", fmt.Errorf("the disk has been used %.2f%%, larger than expected %d%%", currentUsedPercent, p)
 		}
 
-		return fmt.Sprintf("%.f", expectSize), nil
+		// 基于用户可访问空间计算目标使用量
+		targetUsedBytes := uint64(float64(allBytes) * float64(p) / 100.0)
+		needFillBytes := targetUsedBytes - usedBytes
+
+		log.Debugf(ctx, "calculation details: target_used_bytes=%d (%.2f GB), need_fill_bytes=%d (%.2f GB)",
+			targetUsedBytes, float64(targetUsedBytes)/(1024*1024*1024),
+			needFillBytes, float64(needFillBytes)/(1024*1024*1024))
+
+		// 确保不超过可用空间
+		originalNeedFillBytes := needFillBytes
+		if needFillBytes > availableBytes {
+			log.Warnf(ctx, "need_fill_bytes (%d) exceeds available_bytes (%d), adjusting to available_bytes",
+				needFillBytes, availableBytes)
+			needFillBytes = availableBytes
+		}
+
+		expectSize := math.Round(float64(needFillBytes) / (1024.0 * 1024.0))
+
+		log.Infof(ctx, "final calculation: original_need_fill=%d bytes, adjusted_need_fill=%d bytes, "+
+			"expect_size=%.0f MB", originalNeedFillBytes, needFillBytes, expectSize)
+
+		return fmt.Sprintf("%.0f", expectSize), nil
 	} else {
 		r, err := strconv.ParseFloat(reserve, 64)
 		if err != nil {
