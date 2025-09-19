@@ -2,11 +2,12 @@ package network
 
 import (
 	"context"
-	"github.com/chaosblade-io/chaosblade-spec-go/channel"
-	"github.com/goodhosts/hostsfile"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/chaosblade-io/chaosblade-spec-go/channel"
+	"github.com/goodhosts/hostsfile"
 )
 
 func Test_replaceApplier_e2e(t *testing.T) {

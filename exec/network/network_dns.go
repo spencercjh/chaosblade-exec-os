@@ -19,6 +19,8 @@ package network
 import (
 	"context"
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
 
 	"github.com/chaosblade-io/chaosblade-exec-os/exec/category"
@@ -26,8 +28,6 @@ import (
 	"github.com/chaosblade-io/chaosblade-spec-go/log"
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
 	"github.com/goodhosts/hostsfile"
-	"os"
-	"strconv"
 )
 
 var (
