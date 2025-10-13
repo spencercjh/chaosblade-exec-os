@@ -19,6 +19,7 @@ package cpu
 import (
 	"context"
 	"fmt"
+	"math"
 	"os"
 	osexec "os/exec"
 	"runtime"
@@ -176,10 +177,13 @@ func (ce *cpuExecutor) Exec(uid string, ctx context.Context, model *spec.ExpMode
 		return ce.stop(ctx)
 	}
 
-	var cpuCount int
-	var cpuList string
-	var cpuPercent int
-	var climbTime int
+	var (
+		cpuCount   int
+		cpuList    string
+		cpuPercent int
+		climbTime  int
+		quotaRatio = 1.0
+	)
 
 	cpuPercentStr := model.ActionFlags["cpu-percent"]
 	if cpuPercentStr != "" {
@@ -221,8 +225,9 @@ func (ce *cpuExecutor) Exec(uid string, ctx context.Context, model *spec.ExpMode
 		}
 
 		tmpCpuCnt := runtime.NumCPU()
+		tmpQuotaRatio := 1.0
 		if _, ok := ce.channel.(*channel.NSExecChannel); ok {
-			tmpCpuCnt, err = automaxprocs.GetCPUCntByPid(
+			tmpCpuCnt, tmpQuotaRatio, err = automaxprocs.GetCPUCntByPid(
 				ctx,
 				model.ActionFlags["cgroup-root"],
 				model.ActionFlags[channel.NSTargetFlagName],
@@ -234,7 +239,9 @@ func (ce *cpuExecutor) Exec(uid string, ctx context.Context, model *spec.ExpMode
 
 		if cpuCount <= 0 || cpuCount > tmpCpuCnt {
 			cpuCount = tmpCpuCnt
+			quotaRatio = tmpQuotaRatio
 		}
+		log.Infof(ctx, "cpu count: %d, quota ratio: %f", cpuCount, quotaRatio)
 	}
 
 	climbTimeStr := model.ActionFlags["climb-time"]
@@ -253,7 +260,16 @@ func (ce *cpuExecutor) Exec(uid string, ctx context.Context, model *spec.ExpMode
 
 	ctx = context.WithValue(ctx, "cgroup-root", model.ActionFlags["cgroup-root"])
 
-	return ce.start(ctx, cpuList, cpuCount, cpuPercent, climbTime, model.ActionFlags["cpu-index"])
+	// Apply quota ratio to adjust the target percent
+	// Example: quota=0.6 cores, cpuCount=1, ratio=0.6
+	// User wants 80% load, effective target = 80% * 0.6 = 48%
+	effectivePercent := int(math.Max(math.Round(float64(cpuPercent)*quotaRatio), 100))
+	if effectivePercent != cpuPercent {
+		log.Infof(ctx, "adjusted cpu percent from %d%% to %d%% based on quota ratio %f",
+			cpuPercent, effectivePercent, quotaRatio)
+	}
+
+	return ce.start(ctx, cpuList, cpuCount, effectivePercent, climbTime, model.ActionFlags["cpu-index"])
 }
 
 // start burn cpu
