@@ -2,8 +2,8 @@ github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d h1:Byv0BzEl3/e6D5CLfI0j/7hiIEtvGVFPCZ7Ei2oq8iQ=
 github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d/go.mod h1:WaHUgvxTVq04UNunO+XhnAqY/wQc+bxr74GqbsZ/Jqw=
-github.com/chaosblade-io/chaosblade-spec-go v1.7.5 h1:wt+N/Kzxc9kyyKnacEfSLEPUT6dzH+TLonq/tlN1pic=
-github.com/chaosblade-io/chaosblade-spec-go v1.7.5/go.mod h1:QrsUvbhnSmI7SjsKKdNM+F8MnkEE9iIZg2xV425nKsY=
+github.com/chaosblade-io/chaosblade-spec-go v1.8.0 h1:UtwBZCXUJMAtqlmUrfTwmzolxfdnY02Itz1o84Ua0b4=
+github.com/chaosblade-io/chaosblade-spec-go v1.8.0/go.mod h1:xxkKn6Ve25MmqX1vWp1/swl4g+o0rJP1Rkp2ph3DzT8=
 github.com/cilium/ebpf v0.4.0/go.mod h1:4tRaxcgiL706VnOzHOdBlY8IEAIdxINsQBcU4xJJXRs=
 github.com/containerd/cgroups v1.0.2-0.20210605143700-23b51209bf7b h1:mrRq0rkLJnQOfalr7EwNn1ULsMoyGvD+8kN+hxeNRms=
 github.com/containerd/cgroups v1.0.2-0.20210605143700-23b51209bf7b/go.mod h1:0SJrPIenamHDcZhEcJMNBB85rHcUsw4f25ZfBiPYRkU=

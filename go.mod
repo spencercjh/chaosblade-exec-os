@@ -3,7 +3,7 @@ module github.com/chaosblade-io/chaosblade-exec-os
 go 1.25
 
 require (
-	github.com/chaosblade-io/chaosblade-spec-go v1.7.5
+	github.com/chaosblade-io/chaosblade-spec-go v1.8.0
 	github.com/containerd/cgroups v1.0.2-0.20210605143700-23b51209bf7b
 	github.com/goodhosts/hostsfile v0.1.6
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
